@@ -1,0 +1,24 @@
+# Common makefile to be included from all other makefiles
+
+# Where we installed gcc and its headers
+INSTALLDIR=/home/roger/soft/gcc-install
+
+CC=$(INSTALLDIR)/bin/gcc
+PLUGINDIR=$(shell $(CC) -print-file-name=plugin)
+
+CFLAGS=-fPIC -Wall -I$(PLUGINDIR)/include
+LDFLAGS=
+LDADD=
+
+END=
+OBJECTS=$(patsubst %.c,%.o,$(SOURCES))
+
+all: $(PLUGIN)
+
+$(PLUGIN): $(OBJECTS)
+	$(CC) $(LDFLAGS) -o $@ -shared $+ $(LDADD)
+
+
+.PHONY: all clean
+clean:
+	rm -f $(OBJECTS) $(PLUGIN)
