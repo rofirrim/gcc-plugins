@@ -1,43 +1,42 @@
 Install gcc
 ===========
 
-0. Make sure you fulfill all the gcc dependences and set an installation path
+Make sure you fulfill all the gcc dependences and set an installation path
 
     $ sudo apt-get install libgmp-dev libmpc-dev libmpfr-dev
     $ export INSTALLDIR=$HOME/gcc/gcc-install
 
-1. Download gcc
+Download gcc
 
     $ wget http://ftp.gnu.org/gnu/gcc/gcc-4.8.2/gcc-4.8.2.tar.bz2
 
-2. Extract
+Extract
 
     $ tar xfj gcc-4.8.2.tar.bz2
 
-3. Create a build directory
+Create a build directory
 
     $ mkdir gcc-build
     $ cd gcc-build
 
-4. Configure to get a C/C++ compiler
+Configure the source to get a C/C++ compiler
 
-   $ ../gcc-4.8.2/configure --prefix=$INSTALLDIR --enable-languages=c,c++
+    $ ../gcc-4.8.2/configure --prefix=$INSTALLDIR --enable-languages=c,c++
 
-5. Build (will take a while, like 10 min or so in a fast computer)
+Build (will take a while, like 10 min or so in a fast computer)
 
-   $ make -j$(getconf _NPROCESSORS_ONLN) 
+    $ make -j$(getconf _NPROCESSORS_ONLN) 
 
-6. Install
+Install
 
-   $ make install
+    $ make install
 
-7. Ensure we have plugins
+Make sure we have plugins available
 
-   $ ${INSTALLDIR}/bin/gcc -print-file-name=plugin
-   <<INSTALLDIR>>/lib/gcc/x86_64-unknown-linux-gnu/4.8.2/plugin
+    $ ${INSTALLDIR}/bin/gcc -print-file-name=plugin
+    <<INSTALLDIR>>/lib/gcc/x86_64-unknown-linux-gnu/4.8.2/plugin
 
-If it appears 'plugin' you are using the wrong compiler
-
+If it just appears 'plugin' you are using the wrong compiler
 
 Our first plugin
 ================
