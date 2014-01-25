@@ -4,9 +4,11 @@
 INSTALLDIR=/home/roger/soft/gcc-install
 
 CC=$(INSTALLDIR)/bin/gcc
+CXX=$(INSTALLDIR)/bin/g++
 PLUGINDIR=$(shell $(CC) -print-file-name=plugin)
 
-CFLAGS=-fPIC -Wall -I$(PLUGINDIR)/include
+CFLAGS=-fPIC -Wall -g -fno-rtti -I$(PLUGINDIR)/include
+CXXFLAGS=-fPIC -Wall -g -fno-rtti -I$(PLUGINDIR)/include
 LDFLAGS=
 LDADD=
 
@@ -16,8 +18,10 @@ OBJECTS=$(patsubst %.c,%.o,$(SOURCES))
 all: $(PLUGIN)
 
 $(PLUGIN): $(OBJECTS)
-	$(CC) $(LDFLAGS) -o $@ -shared $+ $(LDADD)
+	$(CXX) $(LDFLAGS) -o $@ -shared $+ $(LDADD)
 
+%.o: %.c
+	$(CXX) -c -o $@ $(CFLAGS) $<
 
 .PHONY: all clean test
 clean:
