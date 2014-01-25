@@ -19,6 +19,9 @@ $(PLUGIN): $(OBJECTS)
 	$(CC) $(LDFLAGS) -o $@ -shared $+ $(LDADD)
 
 
-.PHONY: all clean
+.PHONY: all clean test
 clean:
 	rm -f $(OBJECTS) $(PLUGIN)
+
+test: $(PLUGIN)
+	$(CC) -fplugin=./$(PLUGIN) -c test.c
