@@ -10,6 +10,7 @@ PLUGIN_DIRS = \
   06_dump_gimple \
   07_walk_gimple \
   08_cfg_test \
+  09_cfg_graphviz \
   $(END)
 
 all:
