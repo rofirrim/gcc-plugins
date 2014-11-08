@@ -8,4 +8,5 @@ include ../Makefile.common
 
 .PHONY: test
 test: $(PLUGIN)
-	$(CCPLUGIN) -c -o /dev/null test.c
+	$(CCPLUGIN) -c -o /dev/null test.c 2> test.dot
+	xdot test.dot
