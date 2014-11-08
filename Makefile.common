@@ -13,19 +13,21 @@ LDFLAGS=
 LDADD=
 
 END=
-OBJECTS=$(patsubst %.c,%.o,$(SOURCES))
+OBJECTS=$(patsubst %.cc,%.o,$(SOURCES))
 
 all: $(PLUGIN)
 
 $(PLUGIN): $(OBJECTS)
 	$(CXX) $(LDFLAGS) -o $@ -shared $+ $(LDADD)
 
-%.o: %.c
+%.o: %.cc
 	$(CXX) -c -o $@ $(CFLAGS) $<
+
+PLUGINFLAG=-fplugin=./$(PLUGIN)
+
+CCPLUGIN=$(CC) $(PLUGINFLAG)
+CXXPLUGIN=$(CXX)  $(PLUGINFLAG)
 
 .PHONY: all clean test
 clean:
 	rm -f $(OBJECTS) $(PLUGIN)
-
-test: $(PLUGIN)
-	$(CC) -fplugin=./$(PLUGIN) -c test.c

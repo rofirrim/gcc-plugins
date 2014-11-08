@@ -2,7 +2,7 @@
 #include "gcc-plugin.h"
 #include "plugin-version.h"
 
-#include <stdio.h>
+#include <iostream>
 
 // We must assert that this plugin is GPL compatible
 int plugin_is_GPL_compatible;
@@ -16,7 +16,7 @@ int plugin_init (struct plugin_name_args *plugin_info,
 	// created this plugin
 	if (!plugin_default_version_check (version, &gcc_version))
     {
-        fprintf(stderr, "This GCC plugin is for version %d.%d\n", GCCPLUGIN_VERSION_MAJOR, GCCPLUGIN_VERSION_MINOR);
+        std::cerr << "This GCC plugin is for version " << GCCPLUGIN_VERSION_MAJOR << "." << GCCPLUGIN_VERSION_MINOR << "\n";
 		return 1;
     }
 
@@ -24,11 +24,11 @@ int plugin_init (struct plugin_name_args *plugin_info,
             /* event */ PLUGIN_INFO,
             /* callback */ NULL, /* user_data */ &my_gcc_plugin_info);
 
-    fprintf(stderr, "Number of arguments of this plugin: %d\n", plugin_info->argc);
-    int i;
-    for (i = 0; i < plugin_info->argc; i++)
+    std::cerr << "Number of arguments of this plugin:" << plugin_info->argc << "\n";
+
+    for (int i = 0; i < plugin_info->argc; i++)
     {
-        fprintf(stderr, "Argument %d: Key: \"%s\" Value: \"%s\"\n", i, plugin_info->argv[i].key, plugin_info->argv[i].value);
+        std::cerr << "Argument " << i << ": Key: " << plugin_info->argv[i].key << ". Value: " << plugin_info->argv[i].value<< "\n";
     }
 
     return 0;

@@ -8,11 +8,11 @@ Make sure you fulfill all the gcc dependences and set an installation path
 
 Download gcc
 
-    $ wget http://ftp.gnu.org/gnu/gcc/gcc-4.8.2/gcc-4.8.2.tar.bz2
+    $ wget http://ftp.gnu.org/gnu/gcc/gcc-4.9.2/gcc-4.9.2.tar.bz2
 
 Extract
 
-    $ tar xfj gcc-4.8.2.tar.bz2
+    $ tar xfj gcc-4.9.2.tar.bz2
 
 Create a build directory
 
@@ -21,7 +21,7 @@ Create a build directory
 
 Configure the source to get a C/C++ compiler
 
-    $ ../gcc-4.8.2/configure --prefix=$INSTALLDIR --enable-languages=c,c++
+    $ ../gcc-4.9.2/configure --prefix=$INSTALLDIR --enable-languages=c,c++
 
 Build (will take a while, like 10 min or so in a fast computer)
 
@@ -34,7 +34,7 @@ Install
 Make sure we have plugins available
 
     $ ${INSTALLDIR}/bin/gcc -print-file-name=plugin
-    <<INSTALLDIR>>/lib/gcc/x86_64-unknown-linux-gnu/4.8.2/plugin
+    <<INSTALLDIR>>/lib/gcc/x86_64-unknown-linux-gnu/4.9.2/plugin
 
 If it just appears 'plugin' you are using the wrong compiler
 
@@ -49,25 +49,32 @@ Create a boilerplate Makefile.common
     INSTALLDIR=<<INSTALLDIR>>
     
     CC=$(INSTALLDIR)/bin/gcc
+    CXX=$(INSTALLDIR)/bin/g++
     PLUGINDIR=$(shell $(CC) -print-file-name=plugin)
     
-    CFLAGS=-fPIC -Wall -I$(PLUGINDIR)/include
+    CFLAGS=-fPIC -Wall -g -fno-rtti -I$(PLUGINDIR)/include
+    CXXFLAGS=-fPIC -Wall -g -fno-rtti -I$(PLUGINDIR)/include
     LDFLAGS=
     LDADD=
     
     END=
-    OBJECTS=$(patsubst %.c,%.o,$(SOURCES))
+    OBJECTS=$(patsubst %.cc,%.o,$(SOURCES))
     
     all: $(PLUGIN)
     
     $(PLUGIN): $(OBJECTS)
-    	$(CC) $(LDFLAGS) -o $@ -shared $+ $(LDADD)
+    	$(CXX) $(LDFLAGS) -o $@ -shared $+ $(LDADD)
     
+    %.o: %.cc
+    	$(CXX) -c -o $@ $(CFLAGS) $<
     
-    .PHONY: all clean
+    .PHONY: all clean test
     clean:
     	rm -f $(OBJECTS) $(PLUGIN)
-
+    
+    test: $(PLUGIN)
+    	$(CC) -fplugin=./$(PLUGIN) -c test.c
+    
 Create a first/Makefile
 
     PLUGIN=my-first-gcc-plugin.so
@@ -80,17 +87,15 @@ Create a first/Makefile
 
 Create a phase that just prints what it is passed by gcc
 
-
     // This is the first gcc header to be included
     #include "gcc-plugin.h"
     #include "plugin-version.h"
     
-    #include <stdio.h>
+    #include <iostream>
     
     // We must assert that this plugin is GPL compatible
     int plugin_is_GPL_compatible;
     
-    	      
     int plugin_init (struct plugin_name_args *plugin_info,
     		struct plugin_gcc_version *version)
     {
@@ -98,37 +103,35 @@ Create a phase that just prints what it is passed by gcc
     	// created this plugin
     	if (!plugin_default_version_check (version, &gcc_version))
         {
-            fprintf(stderr, "This GCC plugin is for version %d.%d\n", GCCPLUGIN_VERSION_MAJOR, GCCPLUGIN_VERSION_MINOR);
+            std::cerr << "This GCC plugin is for version " << GCCPLUGIN_VERSION_MAJOR << "." << GCCPLUGIN_VERSION_MINOR << "\n";
     		return 1;
         }
     
         // Let's print all the information given to this plugin!
     
-        fprintf(stderr, "Plugin info\n");
-        fprintf(stderr, "===========\n\n");
-        fprintf(stderr, "Base name: %s\n", plugin_info->base_name);
-        fprintf(stderr, "Full name: %s\n", plugin_info->full_name);
-        fprintf(stderr, "Number of arguments of this plugin: %d\n", plugin_info->argc);
-        int i;
-        for (i = 0; i < plugin_info->argc; i++)
+        std::cerr << "Plugin info\n";
+        std::cerr << "===========\n\n";
+        std::cerr << "Base name: " << plugin_info->base_name << "\n";
+        std::cerr << "Full name: " << plugin_info->full_name << "\n";
+        std::cerr << "Number of arguments of this plugin:" << plugin_info->argc << "\n";
+    
+        for (int i = 0; i < plugin_info->argc; i++)
         {
-            fprintf(stderr, "Argument %d: Key: %s. Value: %s\n", i, plugin_info->argv[i].key, plugin_info->argv[i].value);
+            std::cerr << "Argument " << i << ": Key: " << plugin_info->argv[i].key << ". Value: " << plugin_info->argv[i].value<< "\n";
     
         }
-        fprintf(stderr, "Version string of the plugin: %s\n", plugin_info->version);
-        fprintf(stderr, "Help string of the plugin: %s\n", plugin_info->help);
     
-        fprintf(stderr, "\n");
-        fprintf(stderr, "Version info\n");
-        fprintf(stderr, "============\n\n");
-        fprintf(stderr, "Base version: %s\n", version->basever);
-        fprintf(stderr, "Date stamp: %s\n", version->datestamp);
-        fprintf(stderr, "Dev phase: %s\n", version->devphase);
-        fprintf(stderr, "Revision: %s\n", version->devphase);
-        fprintf(stderr, "Configuration arguments: %s\n", version->configuration_arguments);
-        fprintf(stderr, "\n");
+        std::cerr << "\n";
+        std::cerr << "Version info\n";
+        std::cerr << "============\n\n";
+        std::cerr << "Base version: " << version->basever << "\n";
+        std::cerr << "Date stamp: " << version->datestamp << "\n";
+        std::cerr << "Dev phase: " << version->devphase << "\n";
+        std::cerr << "Revision: " << version->devphase << "\n";
+        std::cerr << "Configuration arguments: " << version->configuration_arguments << "\n";
+        std::cerr << "\n";
     
-        fprintf(stderr, "Plugin successfully initialized\n");
+        std::cerr << "Plugin successfully initialized\n";
     
         return 0;
     }
@@ -136,30 +139,27 @@ Create a phase that just prints what it is passed by gcc
 Compile
 
     $ make
-    <<INSTALLDIR>>/bin/gcc -fPIC -Wall -I<<INSTALLDIR>>/lib/gcc/x86_64-unknown-linux-gnu/4.8.2/plugin/include   -c -o my-first-gcc-plugin.o my-first-gcc-plugin.c
+    <<INSTALLDIR>>/bin/gcc -fPIC -Wall -I<<INSTALLDIR>>/lib/gcc/x86_64-unknown-linux-gnu/4.9.2/plugin/include   -c -o my-first-gcc-plugin.o my-first-gcc-plugin.c
     <<INSTALLDIR>>/bin/gcc  -o my-first-gcc-plugin.so -shared my-first-gcc-plugin.o 
 
 Run gcc enabling the plugin
 
     $ <<INSTALLDIR>>/bin/gcc -fplugin=./my-first-gcc-plugin.so -c test.c
-    
     Plugin info
     ===========
     
-    Base name: my-first-gcc-plugin
-    Full name: /home/roger/soft/gcc-plugins/first/my-first-gcc-plugin.so
-    Number of arguments of this plugin: 0
-    Version string of the plugin: (null)
-    Help string of the plugin: (null)
+    Base name: my_first_gcc_plugin
+    Full name: ./my_first_gcc_plugin.so
+    Number of arguments of this plugin:0
     
     Version info
     ============
     
-    Base version: 4.8.2
-    Date stamp: 20131016
+    Base version: 4.9.2
+    Date stamp: 20141030
     Dev phase: 
     Revision: 
-    Configuration arguments: ../gcc-4.8.2/configure --prefix=<<INSTALLDIR>> --enable-languages=c,c++
+    Configuration arguments: ../gcc-4.9.2/configure --prefix=<<INSTALLDIR>> --enable-languages=c,c++,fortran
     
     Plugin successfully initialized
 
@@ -172,7 +172,7 @@ Introducing ourselves to the compiler
     #include "gcc-plugin.h"
     #include "plugin-version.h"
     
-    #include <stdio.h>
+    #include <iostream>
     
     // We must assert that this plugin is GPL compatible
     int plugin_is_GPL_compatible;
@@ -186,10 +186,11 @@ Introducing ourselves to the compiler
     	// created this plugin
     	if (!plugin_default_version_check (version, &gcc_version))
         {
-            fprintf(stderr, "This GCC plugin is for version %d.%d\n", GCCPLUGIN_VERSION_MAJOR, GCCPLUGIN_VERSION_MINOR);
+            std::cerr << "This GCC plugin is for version " << GCCPLUGIN_VERSION_MAJOR << "." << GCCPLUGIN_VERSION_MINOR << "\n";
     		return 1;
         }
     
+        // Register the plugin itself
         register_callback(plugin_info->base_name,
                 /* event */ PLUGIN_INFO,
                 /* callback */ NULL, /* user_data */ &my_gcc_plugin_info);
@@ -197,10 +198,9 @@ Introducing ourselves to the compiler
         return 0;
     }
 
-
 Call the C compiler (the gcc driver is not going to be enough) to see the plugins loaded
 
-    $ <<INSTALLDIR>>/libexec/gcc/x86_64-unknown-linux-gnu/4.8.2/cc1 -fplugin=./help-version.so --help
+    $ <<INSTALLDIR>>/libexec/gcc/x86_64-unknown-linux-gnu/4.9.2/cc1 -fplugin=./help-version.so --help
     
     ...
       -p                                [disabled]
@@ -211,17 +211,16 @@ Call the C compiler (the gcc driver is not going to be enough) to see the plugin
      help-version:
         This is a very simple plugin
 
- Being able to pass parameters
-===========================================================
+Being able to pass parameters
+=============================
 
 Once we have introduced ourselves to the compiler we can pass parameters using -fplugin-arg-<<basename>>-key=value
-
 
     // This is the first gcc header to be included
     #include "gcc-plugin.h"
     #include "plugin-version.h"
     
-    #include <stdio.h>
+    #include <iostream>
     
     // We must assert that this plugin is GPL compatible
     int plugin_is_GPL_compatible;
@@ -235,7 +234,7 @@ Once we have introduced ourselves to the compiler we can pass parameters using -
     	// created this plugin
     	if (!plugin_default_version_check (version, &gcc_version))
         {
-            fprintf(stderr, "This GCC plugin is for version %d.%d\n", GCCPLUGIN_VERSION_MAJOR, GCCPLUGIN_VERSION_MINOR);
+            std::cerr << "This GCC plugin is for version " << GCCPLUGIN_VERSION_MAJOR << "." << GCCPLUGIN_VERSION_MINOR << "\n";
     		return 1;
         }
     
@@ -243,15 +242,23 @@ Once we have introduced ourselves to the compiler we can pass parameters using -
                 /* event */ PLUGIN_INFO,
                 /* callback */ NULL, /* user_data */ &my_gcc_plugin_info);
     
-        fprintf(stderr, "Number of arguments of this plugin: %d\n", plugin_info->argc);
-        int i;
-        for (i = 0; i < plugin_info->argc; i++)
+        std::cerr << "Number of arguments of this plugin:" << plugin_info->argc << "\n";
+    
+        for (int i = 0; i < plugin_info->argc; i++)
         {
-            fprintf(stderr, "Argument %d: Key: \"%s\" Value: \"%s\"\n", i, plugin_info->argv[i].key, plugin_info->argv[i].value);
+            std::cerr << "Argument " << i << ": Key: " << plugin_info->argv[i].key << ". Value: " << plugin_info->argv[i].value<< "\n";
+    
         }
     
         return 0;
     }
 
+For instance
 
-(To be continued...)
+    <<INSTALLDIR>>/bin/gcc -fplugin=./my_parameters.so -c -x c /dev/null \
+    	-fplugin-arg-my_parameters-this=is-a-parameter \
+    	-fplugin-arg-my_parameters-and-this=is-another-parameter
+    Number of arguments of this plugin:2
+    Argument 0: Key: this. Value: is-a-parameter
+    Argument 1: Key: and-this. Value: is-another-parameter
+

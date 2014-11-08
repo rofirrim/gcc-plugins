@@ -1,7 +1,11 @@
 
 PLUGIN=callbacks.so
 SOURCES=\
-        callbacks.c \
+        callbacks.cc \
 		$(END)
 
 include ../Makefile.common
+
+.PHONY: test
+test: $(PLUGIN)
+	$(CCPLUGIN) -c -x c /dev/null -o /dev/null

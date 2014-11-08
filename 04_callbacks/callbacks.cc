@@ -2,7 +2,7 @@
 #include "gcc-plugin.h"
 #include "plugin-version.h"
 
-#include <stdio.h>
+#include <iostream>
 
 // We must assert that this plugin is GPL compatible
 int plugin_is_GPL_compatible;
@@ -11,57 +11,57 @@ static struct plugin_info my_gcc_plugin_info = { "1.0", "This is a very simple p
 
 static void callback_finish_type(void *gcc_data, void *user_data)
 {
-    fprintf(stderr, " *** A type has been finished\n");
+    std::cerr << " *** A type has been finished\n";
 }
 
 static void callback_finish_declaration(void *gcc_data, void *user_data)
 {
-    fprintf(stderr, " *** A declaration has been finished\n");
+    std::cerr << " *** A declaration has been finished\n";
 }
 
 static void callback_finish_unit(void *gcc_data, void *user_data)
 {
-    fprintf(stderr, " *** A translation unit has been finished\n");
+    std::cerr << " *** A translation unit has been finished\n";
 }
 
 static void callback_pre_genericize(void *gcc_data, void *user_data)
 {
-    fprintf(stderr, " *** We are about to emit GENERIC after parsing C/C++\n");
+    std::cerr << " *** We are about to emit GENERIC after parsing C/C++\n";
 }
 
 static void callback_finish(void *gcc_data, void *user_data)
 {
-    fprintf(stderr, " *** GCC is exiting\n");
+    std::cerr << " *** GCC is exiting\n";
 }
 
 static void callback_register_attribute(void *gcc_data, void *user_data)
 {
-    fprintf(stderr, " *** Registering attributes\n");
+    std::cerr << " *** Registering attributes\n";
 }
 
 static void callback_start_unit(void *gcc_data, void *user_data)
 {
-    fprintf(stderr, " *** We are about to process a translation unit\n");
+    std::cerr << " *** We are about to process a translation unit\n";
 }
 
 static void callback_registering_pragmas(void *gcc_data, void *user_data)
 {
-    fprintf(stderr, " *** Registering pragmas\n");
+    std::cerr << " *** Registering pragmas\n";
 }
 
 static void callback_all_passes_start(void *gcc_data, void *user_data)
 {
-    fprintf(stderr, " *** About to start all passes\n");
+    std::cerr << " *** About to start all passes\n";
 }
 
 static void callback_all_passes_end(void *gcc_data, void *user_data)
 {
-    fprintf(stderr, " *** All passes ended\n");
+    std::cerr << " *** All passes ended\n";
 }
 
 static void callback_pass_execution(void *gcc_data, void *user_data)
 {
-    fprintf(stderr, " *** About to execute a pass\n");
+    std::cerr << " *** About to execute a pass\n";
 }
 
 int plugin_init (struct plugin_name_args *plugin_info,
@@ -71,7 +71,7 @@ int plugin_init (struct plugin_name_args *plugin_info,
 	// created this plugin
 	if (!plugin_default_version_check (version, &gcc_version))
     {
-        fprintf(stderr, "This GCC plugin is for version %d.%d\n", GCCPLUGIN_VERSION_MAJOR, GCCPLUGIN_VERSION_MINOR);
+        std::cerr << "This GCC plugin is for version " << GCCPLUGIN_VERSION_MAJOR << "." << GCCPLUGIN_VERSION_MINOR << "\n";
 		return 1;
     }
 
