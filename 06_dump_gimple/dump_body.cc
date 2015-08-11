@@ -82,11 +82,11 @@ int plugin_init (struct plugin_name_args *plugin_info,
     struct register_pass_info pass_info;
 
     // Note that after the cfg is built, fun->gimple_body is not accessible
-    // anymore so we run this pass just before the cfg one
+    // anymore so we run this pass just before it
     pass_info.pass = new my_first_pass(g);
-    pass_info.reference_pass_name = "omplower";
+    pass_info.reference_pass_name = "cfg";
     pass_info.ref_pass_instance_number = 1;
-    pass_info.pos_op = PASS_POS_INSERT_AFTER;
+    pass_info.pos_op = PASS_POS_INSERT_BEFORE;
 
     register_callback (plugin_info->base_name, PLUGIN_PASS_MANAGER_SETUP, NULL, &pass_info);
 
