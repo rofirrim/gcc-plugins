@@ -1,14 +1,16 @@
 # Common makefile to be included from all other makefiles
 
 # Where we installed gcc and its headers
-INSTALLDIR=/home/roger/soft/gcc-install
+INSTALLDIR=/home/roger/soft/gcc/gcc-5.2
 
 CC=$(INSTALLDIR)/bin/gcc
 CXX=$(INSTALLDIR)/bin/g++
 PLUGINDIR=$(shell $(CC) -print-file-name=plugin)
 
-CFLAGS=-fPIC -Wall -g -fno-rtti -I$(PLUGINDIR)/include
-CXXFLAGS=-fPIC -Wall -g -fno-rtti -I$(PLUGINDIR)/include
+CXXFLAGS=-std=gnu++11 -fPIC -Wall -g -fno-rtti -I$(PLUGINDIR)/include
+# This is a side effect of using C++11
+CXXFLAGS+=-Wno-literal-suffix
+
 LDFLAGS=
 LDADD=
 
@@ -21,7 +23,7 @@ $(PLUGIN): $(OBJECTS)
 	$(CXX) $(LDFLAGS) -o $@ -shared $+ $(LDADD)
 
 %.o: %.cc
-	$(CXX) -c -o $@ $(CFLAGS) $<
+	$(CXX) -c -o $@ $(CXXFLAGS) $<
 
 PLUGINFLAG=-fplugin=./$(PLUGIN)
 

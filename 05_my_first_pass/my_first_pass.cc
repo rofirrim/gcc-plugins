@@ -1,3 +1,5 @@
+#include <iostream>
+
 // This is the first gcc header to be included
 #include "gcc-plugin.h"
 #include "plugin-version.h"
@@ -5,8 +7,6 @@
 // Needed for gimple_opt_pass
 #include "tree-pass.h"
 #include "context.h"
-
-#include <iostream>
 
 // We must assert that this plugin is GPL compatible
 int plugin_is_GPL_compatible;
@@ -21,8 +21,6 @@ namespace
         GIMPLE_PASS,
         "my_first_pass",        /* name */
         OPTGROUP_NONE,          /* optinfo_flags */
-        false,                  /* has_gate */
-        true,                   /* has_execute */
         TV_NONE,                /* tv_id */
         PROP_gimple_any,        /* properties_required */
         0,                      /* properties_provided */
@@ -38,13 +36,13 @@ namespace
         {
         }
 
-        virtual unsigned int execute()
+        virtual unsigned int execute(function *fun) override
         {
             std::cerr << "Running my first pass, OMG\n";
             return 0;
         }
 
-        virtual my_first_pass* clone()
+        virtual my_first_pass* clone() override
         {
             // We do not clone ourselves
             return this;

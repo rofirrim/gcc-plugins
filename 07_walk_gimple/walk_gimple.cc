@@ -1,3 +1,5 @@
+#include <iostream>
+
 // This is the first gcc header to be included
 #include "gcc-plugin.h"
 #include "plugin-version.h"
@@ -17,8 +19,6 @@
 #include "gimple-iterator.h"
 #include "gimple-walk.h"
 
-#include <iostream>
-
 // We must assert that this plugin is GPL compatible
 int plugin_is_GPL_compatible;
 
@@ -32,8 +32,6 @@ namespace
         GIMPLE_PASS,
         "my_first_pass",        /* name */
         OPTGROUP_NONE,          /* optinfo_flags */
-        false,                  /* has_gate */
-        true,                   /* has_execute */
         TV_NONE,                /* tv_id */
         PROP_gimple_any,        /* properties_required */
         0,                      /* properties_provided */
@@ -49,10 +47,10 @@ namespace
         {
         }
 
-        virtual unsigned int execute()
+        virtual unsigned int execute(function *fun) override
         {
-            // cfun is the current function being called
-            gimple_seq gimple_body = cfun->gimple_body;
+            // fun is the current function being called
+            gimple_seq gimple_body = fun->gimple_body;
 
             struct walk_stmt_info walk_stmt_info;
             memset(&walk_stmt_info, 0, sizeof(walk_stmt_info));
@@ -63,7 +61,7 @@ namespace
             return 0;
         }
 
-        virtual my_first_pass* clone()
+        virtual my_first_pass* clone() override
         {
             // We do not clone ourselves
             return this;
@@ -114,7 +112,7 @@ int plugin_init (struct plugin_name_args *plugin_info,
     // Register the phase right after omplower
     struct register_pass_info pass_info;
 
-    // Note that after the cfg is built, cfun->gimple_body is not accessible
+    // Note that after the cfg is built, fun->gimple_body is not accessible
     // anymore so we run this pass just before the cfg one
     pass_info.pass = new my_first_pass(g);
     pass_info.reference_pass_name = "omplower";

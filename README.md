@@ -8,11 +8,11 @@ Make sure you fulfill all the gcc dependences and set an installation path
 
 Download gcc
 
-    $ wget http://ftp.gnu.org/gnu/gcc/gcc-4.9.2/gcc-4.9.2.tar.bz2
+    $ wget http://ftp.gnu.org/gnu/gcc/gcc-5.2.0/gcc-5.2.0.tar.bz2
 
 Extract
 
-    $ tar xfj gcc-4.9.2.tar.bz2
+    $ tar xfj gcc-5.2.0.tar.bz2
 
 Create a build directory
 
@@ -21,7 +21,7 @@ Create a build directory
 
 Configure the source to get a C/C++ compiler
 
-    $ ../gcc-4.9.2/configure --prefix=$INSTALLDIR --enable-languages=c,c++
+    $ ../gcc-5.2.0/configure --prefix=$INSTALLDIR --enable-languages=c,c++
 
 Build (will take a while, like 10 min or so in a fast computer)
 
@@ -34,7 +34,7 @@ Install
 Make sure we have plugins available
 
     $ ${INSTALLDIR}/bin/gcc -print-file-name=plugin
-    <<INSTALLDIR>>/lib/gcc/x86_64-unknown-linux-gnu/4.9.2/plugin
+    <<INSTALLDIR>>/lib/gcc/x86_64-unknown-linux-gnu/5.2.0/plugin
 
 If it just appears 'plugin' you are using the wrong compiler
 
@@ -139,10 +139,10 @@ Create a phase that just prints what it is passed by gcc
 Compile
 
     $ make
-    <<INSTALLDIR>>/bin/gcc -fPIC -Wall -I<<INSTALLDIR>>/lib/gcc/x86_64-unknown-linux-gnu/4.9.2/plugin/include   -c -o my-first-gcc-plugin.o my-first-gcc-plugin.c
+    <<INSTALLDIR>>/bin/gcc -fPIC -Wall -I<<INSTALLDIR>>/lib/gcc/x86_64-unknown-linux-gnu/5.2.0/plugin/include   -c -o my-first-gcc-plugin.o my-first-gcc-plugin.c
     <<INSTALLDIR>>/bin/gcc  -o my-first-gcc-plugin.so -shared my-first-gcc-plugin.o 
 
-Run gcc enabling the plugin
+Run gcc enabling the plugin (you can call 'make test')
 
     $ <<INSTALLDIR>>/bin/gcc -fplugin=./my-first-gcc-plugin.so -c test.c
     Plugin info
@@ -155,11 +155,11 @@ Run gcc enabling the plugin
     Version info
     ============
     
-    Base version: 4.9.2
-    Date stamp: 20141030
+    Base version: 5.2.0
+    Date stamp: 20150716
     Dev phase: 
     Revision: 
-    Configuration arguments: ../gcc-4.9.2/configure --prefix=<<INSTALLDIR>> --enable-languages=c,c++,fortran
+    Configuration arguments: ../gcc-5.2.0/configure --prefix=<<INSTALLDIR>> --enable-languages=c,c++,fortran
     
     Plugin successfully initialized
 
@@ -200,7 +200,7 @@ Introducing ourselves to the compiler
 
 Call the C compiler (the gcc driver is not going to be enough) to see the plugins loaded
 
-    $ <<INSTALLDIR>>/libexec/gcc/x86_64-unknown-linux-gnu/4.9.2/cc1 -fplugin=./help-version.so --help
+    $ <<INSTALLDIR>>/libexec/gcc/x86_64-unknown-linux-gnu/5.2.0/cc1 -fplugin=./help-version.so --help
     
     ...
       -p                                [disabled]

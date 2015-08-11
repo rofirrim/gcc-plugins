@@ -1,3 +1,5 @@
+#include <iostream>
+
 // This is the first gcc header to be included
 #include "gcc-plugin.h"
 #include "plugin-version.h"
@@ -17,8 +19,6 @@
 #include "gimple-iterator.h"
 #include "gimple-walk.h"
 
-#include <iostream>
-
 // We must assert that this plugin is GPL compatible
 int plugin_is_GPL_compatible;
 
@@ -32,8 +32,6 @@ namespace
         GIMPLE_PASS,
         "my_first_pass",        /* name */
         OPTGROUP_NONE,          /* optinfo_flags */
-        false,                  /* has_gate */
-        true,                   /* has_execute */
         TV_NONE,                /* tv_id */
         PROP_gimple_any,        /* properties_required */
         0,                      /* properties_provided */
@@ -49,10 +47,10 @@ namespace
         {
         }
 
-        virtual unsigned int execute()
+        virtual unsigned int execute(function *fun) override
         {
             basic_block bb;
-            FOR_EACH_BB_FN(bb, cfun)
+            FOR_EACH_BB_FN(bb, fun)
             {
                 fprintf(stderr, "Basic Block %d\n", bb->index);
                 gimple_bb_info *bb_info = &bb->il.gimple;
@@ -64,7 +62,7 @@ namespace
             return 0;
         }
 
-        virtual my_first_pass* clone()
+        virtual my_first_pass* clone() override
         {
             // We do not clone ourselves
             return this;
@@ -90,8 +88,6 @@ int plugin_init (struct plugin_name_args *plugin_info,
     // Register the phase right after omplower
     struct register_pass_info pass_info;
 
-    // Note that after the cfg is built, cfun->gimple_body is not accessible
-    // anymore so we run this pass just before the cfg one
     pass_info.pass = new my_first_pass(g);
     pass_info.reference_pass_name = "cfg";
     pass_info.ref_pass_instance_number = 1;

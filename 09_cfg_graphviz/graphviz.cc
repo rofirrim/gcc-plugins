@@ -1,3 +1,5 @@
+#include <iostream>
+
 // This is the first gcc header to be included
 #include "gcc-plugin.h"
 #include "plugin-version.h"
@@ -17,8 +19,6 @@
 #include "gimple-iterator.h"
 #include "gimple-walk.h"
 
-#include <iostream>
-
 // We must assert that this plugin is GPL compatible
 int plugin_is_GPL_compatible;
 
@@ -32,8 +32,6 @@ namespace
         GIMPLE_PASS,
         "my_first_pass",        /* name */
         OPTGROUP_NONE,          /* optinfo_flags */
-        false,                  /* has_gate */
-        true,                   /* has_execute */
         TV_NONE,                /* tv_id */
         PROP_gimple_any,        /* properties_required */
         0,                      /* properties_provided */
@@ -50,28 +48,28 @@ namespace
             std::cerr << "digraph cfg {\n";
         }
 
-        virtual unsigned int execute()
+        virtual unsigned int execute(function *fun) override
         {
             basic_block bb;
 
-            std::cerr << "subgraph fun_" << cfun << " {\n";
+            std::cerr << "subgraph fun_" << fun << " {\n";
 
-            FOR_ALL_BB_FN(bb, cfun)
+            FOR_ALL_BB_FN(bb, fun)
             {
                 gimple_bb_info *bb_info = &bb->il.gimple;
 
-                std::cerr << "bb_" << cfun << "_" << bb->index << "[label=\"";
+                std::cerr << "bb_" << fun << "_" << bb->index << "[label=\"";
                 if (bb->index == 0)
                 {
                     std::cerr << "ENTRY: "
-                        << function_name(cfun) << "\n"
-                        << (LOCATION_FILE(cfun->function_start_locus) ? : "<unknown>") << ":" << LOCATION_LINE(cfun->function_start_locus);
+                        << function_name(fun) << "\n"
+                        << (LOCATION_FILE(fun->function_start_locus) ? : "<unknown>") << ":" << LOCATION_LINE(fun->function_start_locus);
                 }
                 else if (bb->index == 1)
                 {
                     std::cerr << "EXIT: "
-                        << function_name(cfun) << "\n"
-                        << (LOCATION_FILE(cfun->function_end_locus) ? : "<unknown>") << ":" << LOCATION_LINE(cfun->function_end_locus);
+                        << function_name(fun) << "\n"
+                        << (LOCATION_FILE(fun->function_end_locus) ? : "<unknown>") << ":" << LOCATION_LINE(fun->function_end_locus);
                 }
                 else
                 {
@@ -85,7 +83,7 @@ namespace
                 FOR_EACH_EDGE (e, ei, bb->succs)
                 {
                     basic_block dest = e->dest;
-                    std::cerr << "bb_" << cfun << "_" << bb->index << " -> bb_" << cfun << "_" << dest->index << ";\n";
+                    std::cerr << "bb_" << fun << "_" << bb->index << " -> bb_" << fun << "_" << dest->index << ";\n";
                 }
             }
 
@@ -95,7 +93,7 @@ namespace
             return 0;
         }
 
-        virtual my_first_pass* clone()
+        virtual my_first_pass* clone() override
         {
             // We do not clone ourselves
             return this;
@@ -130,8 +128,6 @@ int plugin_init (struct plugin_name_args *plugin_info,
     // Register the phase right after omplower
     struct register_pass_info pass_info;
 
-    // Note that after the cfg is built, cfun->gimple_body is not accessible
-    // anymore so we run this pass just before the cfg one
     pass_info.pass = new my_first_pass(g);
     pass_info.reference_pass_name = "ssa";
     pass_info.ref_pass_instance_number = 1;

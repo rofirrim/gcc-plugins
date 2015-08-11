@@ -1,8 +1,9 @@
+#include <iostream>
+
 // This is the first gcc header to be included
 #include "gcc-plugin.h"
 #include "plugin-version.h"
 
-#include <iostream>
 
 // We must assert that this plugin is GPL compatible
 int plugin_is_GPL_compatible;
