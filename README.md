@@ -1,21 +1,23 @@
 Install gcc
 ===========
 
-Make sure you fulfill all the gcc dependences and set an installation path
-
-    $ sudo apt-get install libgmp-dev libmpc-dev libmpfr-dev
-    $ export INSTALLDIR=$HOME/gcc/gcc-install
-
-Download gcc
+Download gcc and unpack it
 
     $ wget http://ftp.gnu.org/gnu/gcc/gcc-5.2.0/gcc-5.2.0.tar.bz2
-
-Extract
-
     $ tar xfj gcc-5.2.0.tar.bz2
+
+Make sure you fullfill all the gcc dependences
+
+    $ cd gcc-5.2.0
+    $ ./contrib/download_prerequisites
+
+Set an installation path
+
+    $ export INSTALLDIR=$HOME/gcc/gcc-install
 
 Create a build directory
 
+    $ cd ..            # leave gcc source directory
     $ mkdir gcc-build
     $ cd gcc-build
 
