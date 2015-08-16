@@ -11,6 +11,7 @@ PLUGIN_DIRS = \
   07_walk_gimple \
   08_cfg_test \
   09_cfg_graphviz \
+  10_warn_unused_result_cxx \
   $(END)
 
 all:
