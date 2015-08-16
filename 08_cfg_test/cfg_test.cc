@@ -85,7 +85,7 @@ int plugin_init (struct plugin_name_args *plugin_info,
             /* event */ PLUGIN_INFO,
             /* callback */ NULL, /* user_data */ &my_gcc_plugin_info);
 
-    // Register the phase right after omplower
+    // Register the phase right after cfg
     struct register_pass_info pass_info;
 
     pass_info.pass = new my_first_pass(g);
