@@ -71,7 +71,7 @@ namespace
 
         static tree callback_stmt(gimple_stmt_iterator * gsi, bool *handled_all_ops, struct walk_stmt_info *wi)
         {
-            gimple g = gsi_stmt(*gsi);
+            gimple* g = gsi_stmt(*gsi);
 
             location_t l = gimple_location(g);
             enum gimple_code code = gimple_code(g);

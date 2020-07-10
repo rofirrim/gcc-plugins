@@ -48,7 +48,7 @@ namespace
             std::cerr << "*******************\n";
 
             // Dump its body
-            print_gimple_seq(stderr, gimple_body, 0, 0);
+            print_gimple_seq(stderr, gimple_body, 0, static_cast<dump_flags_t>(0));
 
             std::cerr << "*******************\n\n";
 
