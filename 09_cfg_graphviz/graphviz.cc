@@ -73,7 +73,7 @@ namespace
                 }
                 else
                 {
-                    print_gimple_seq(stderr, bb_info->seq , 0, 0);
+                    print_gimple_seq(stderr, bb_info->seq , 0, static_cast<dump_flags_t>(0));
                 }
                 std::cerr << "\"];\n";
 

@@ -54,7 +54,7 @@ namespace
             {
                 fprintf(stderr, "Basic Block %d\n", bb->index);
                 gimple_bb_info *bb_info = &bb->il.gimple;
-                print_gimple_seq(stderr, bb_info->seq, 0, 0);
+                print_gimple_seq(stderr, bb_info->seq, 0, static_cast<dump_flags_t>(0));
                 fprintf(stderr, "\n");
             }
 
